@@ -1,0 +1,120 @@
+-- MySQL dump 10.13  Distrib 5.6.14, for Win64 (x86_64)
+--
+-- Host: localhost    Database: test
+-- ------------------------------------------------------
+-- Server version	5.6.14
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+use bw_services_secure_test;
+
+--
+-- Table structure for table `card_audit_log`
+--
+
+DROP TABLE IF EXISTS `card_audit_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `card_audit_log` (
+  `audit_id` int(9) NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(128) NOT NULL,
+  `user_id` int(9) NOT NULL,
+  `card_id` varchar(128) NOT NULL,
+  `client_id` int(9) NOT NULL,
+  `sub_client_id` int(9) DEFAULT NULL,
+  `concierge_id` int(9) DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `request_type` char(1) NOT NULL,
+  `created_by` varchar(20) NOT NULL,
+  `creation_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_by` varchar(20) DEFAULT NULL,
+  `modification_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`audit_id`),
+  KEY `card_audit_ind1` (`card_id`),
+  KEY `card_audit_ind2` (`customer_id`),
+  KEY `card_audit_ind3` (`session_id`),
+  CONSTRAINT `fk_card_audit_card` FOREIGN KEY (`card_id`) REFERENCES `customer_card` (`card_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `card_audit_log`
+--
+
+LOCK TABLES `card_audit_log` WRITE;
+/*!40000 ALTER TABLE `card_audit_log` DISABLE KEYS */;
+INSERT INTO `card_audit_log` VALUES (1,'1kfvw0wit8lf34awd91aqhnvk',33333333,'9fdc4052-7ba5-4465-af78-6bf1fb015e10',987687,NULL,9876543,99997788,'A','Me12344','2013-12-12 21:05:56',NULL,'2013-12-12 21:05:56');
+/*!40000 ALTER TABLE `card_audit_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customer_card`
+--
+
+DROP TABLE IF EXISTS `customer_card`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `customer_card` (
+  `card_id` varchar(128) NOT NULL,
+  `card_number` mediumtext NOT NULL,
+  `created_by` varchar(20) NOT NULL,
+  `creation_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_by` varchar(20) DEFAULT NULL,
+  `modification_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`card_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customer_card`
+--
+
+LOCK TABLES `customer_card` WRITE;
+/*!40000 ALTER TABLE `customer_card` DISABLE KEYS */;
+INSERT INTO `customer_card` VALUES ('9fdc4052-7ba5-4465-af78-6bf1fb015e10','l0zETo8S0a0hkD3Dq1f/5gmT5Ig1rK1b2QTO5ZZqn9kkV3T8GeMlTaLpzMZSBlpQ5slCk+ddxOXTMZ7Hi9tX9g==','UUUUTUUUMEEEEEE','2013-12-12 21:05:56','UUUTUUUMEEEEEE','2013-12-12 21:05:56');
+/*!40000 ALTER TABLE `customer_card` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `id_gen`
+--
+
+DROP TABLE IF EXISTS `id_gen`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `id_gen` (
+  `gen_name` varchar(128) NOT NULL,
+  `gen_value` int(9) NOT NULL,
+  PRIMARY KEY (`gen_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `id_gen`
+--
+
+LOCK TABLES `id_gen` WRITE;
+/*!40000 ALTER TABLE `id_gen` DISABLE KEYS */;
+INSERT INTO `id_gen` VALUES ('AUDIT_ID',2);
+/*!40000 ALTER TABLE `id_gen` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2013-12-12 13:06:30

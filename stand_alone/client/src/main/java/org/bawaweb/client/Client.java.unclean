@@ -1,0 +1,301 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.bawaweb.client;
+
+import java.io.FileInputStream;
+import java.math.BigInteger;
+import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.core.Response;
+
+import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+
+import org.bawaweb.model.CustomerCard;
+import org.bawaweb.services.CustomerCardService;
+
+
+public final class Client {
+
+    private static final String CLIENT_CONFIG_FILE = "resources/ClientConfig.xml";
+    private static final String BASE_SERVICE_URL = "https://localhost:9000/customerCardService/customerCards";
+
+    private Client() {
+    }
+    
+    public void doGetCardNumberRequest() throws Exception {
+    	String keyStoreLoc = "config/clientKeystore.jks";
+
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(new FileInputStream(keyStoreLoc), "cspass".toCharArray());
+
+        /* 
+         * Send HTTP GET request to query customer info using portable HttpClient
+         * object from Apache HttpComponents
+         */
+        SSLSocketFactory sf = new SSLSocketFactory(keyStore, "ckpass", keyStore); 
+        Scheme httpsScheme = new Scheme("https", 9000, sf);
+        System.out.println("Sending HTTPS GET request to query customer info");
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        httpclient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
+        HttpGet httpget = new HttpGet(BASE_SERVICE_URL + "/99123567");//"/254524");//"/231624");//"/22222222");//"/22222222");//"/123456");//"/7777");//"/123456");
+        BasicHeader bh = new BasicHeader("Accept" , "text/xml");
+        httpget.addHeader(bh);
+        HttpResponse response = httpclient.execute(httpget);
+        HttpEntity entity = response.getEntity();
+        entity.writeTo(System.out);
+        
+
+//        httpclient.getConnectionManager().shutdown();
+        
+        System.out.println("\n");
+//        System.exit(0);
+    	
+    }
+    
+    
+    
+    public void doAddCustomerCardPostRequest() {
+    	/*
+//       *  Send HTTP POST request to add customer, using JAXRSClientProxy
+//       *  Note: if need to use basic authentication, use the JAXRSClientFactory.create(baseAddress,
+//       *  username,password,configFile) variant, where configFile can be null if you're
+//       *  not using certificates.
+//       */
+      
+      /*remo for now*/
+      System.out.println("\n\nSending HTTPS POST request to add customerCard");
+      DefaultHttpClient httpclient = new DefaultHttpClient();////////////////
+      CustomerCardService proxy = JAXRSClientFactory.create(BASE_SERVICE_URL, CustomerCardService.class,
+            CLIENT_CONFIG_FILE);
+      WebClient wc = WebClient.create(BASE_SERVICE_URL, CLIENT_CONFIG_FILE);
+      
+      // 123456 | YAHOOOOOOOOOOO	which exist
+      CustomerCard customerCard = new CustomerCard();
+      customerCard.setCardNumber("4298767868316");//9898787111111111
+      customerCard.setCustomerXAID(new BigInteger("93243567"));//1111111
+      Response resp = wc.post(customerCard);
+      /*ends rem for now*/
+      /*
+      entity = response.getEntity();
+      entity.writeTo(System.out);*/	
+    }
+    
+    
+    public void add10Cards(List<CustomerCard> cards) {
+    	System.out.println("\n\nSending HTTPS POST request to add customerCard");
+        DefaultHttpClient httpclient = new DefaultHttpClient();////////////////
+        CustomerCardService proxy = JAXRSClientFactory.create(BASE_SERVICE_URL, CustomerCardService.class,
+              CLIENT_CONFIG_FILE);
+        WebClient wc = WebClient.create(BASE_SERVICE_URL, CLIENT_CONFIG_FILE);
+        
+       // didnt work 
+//        Response resp = wc.postCollection(cards, org.bawaweb.model.CustomerCard.class);
+        for(CustomerCard c : cards) {
+        	Response resp = wc.post(c);
+        }
+        
+    }
+    
+    public static void main(String args[]) throws Exception {
+    	Client cc = new Client();
+    	List<CustomerCard> list = cc.create10Cards();
+    	cc.add10Cards(list);
+    	
+    	
+//    	cc.doGetCardNumberRequest();
+//    	cc.doAddCustomerCardPostRequest();
+    }
+    
+    
+//
+//    public static void main(String args[]) throws Exception {       
+//        String keyStoreLoc = "config/clientKeystore.jks";
+//
+//        KeyStore keyStore = KeyStore.getInstance("JKS");
+//        keyStore.load(new FileInputStream(keyStoreLoc), "cspass".toCharArray());
+//
+//        /* 
+//         * Send HTTP GET request to query customer info using portable HttpClient
+//         * object from Apache HttpComponents
+//         */
+//        SSLSocketFactory sf = new SSLSocketFactory(keyStore, "ckpass", keyStore); 
+//        Scheme httpsScheme = new Scheme("https", 9000, sf);
+////get
+//        System.out.println("Sending HTTPS GET request to query customer info");
+//        DefaultHttpClient httpclient = new DefaultHttpClient();
+//        httpclient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
+//        HttpGet httpget = new HttpGet(BASE_SERVICE_URL + "/333");//"/22222222");//"/123456");//"/7777");//"/123456");
+//        BasicHeader bh = new BasicHeader("Accept" , "text/xml");
+//        httpget.addHeader(bh);
+//        HttpResponse response = httpclient.execute(httpget);
+//        HttpEntity entity = response.getEntity();
+//        entity.writeTo(System.out);
+////end get        
+////        httpclient.getConnectionManager().shutdown();//////////
+////        
+////        /*
+////         *  Send HTTP PUT request to update customer info, using CXF WebClient method
+////         *  Note: if need to use basic authentication, use the WebClient.create(baseAddress,
+////         *  username,password,configFile) variant, where configFile can be null if you're
+////         *  not using certificates.
+////         */
+////        System.out.println("\n\nSending HTTPS PUT to update customer name");
+////        WebClient wc = WebClient.create(BASE_SERVICE_URL, CLIENT_CONFIG_FILE);
+////        Customer customer = new Customer();
+////        customer.setId(123);
+////        customer.setName("Mary");
+////        Response resp = wc.put(customer);
+////
+////        /*
+////         *  Send HTTP POST request to add customer, using JAXRSClientProxy
+////         *  Note: if need to use basic authentication, use the JAXRSClientFactory.create(baseAddress,
+////         *  username,password,configFile) variant, where configFile can be null if you're
+////         *  not using certificates.
+////         */
+//        
+//        /*remo for now*/
+////        System.out.println("\n\nSending HTTPS POST request to add customerCard");
+////        DefaultHttpClient httpclient = new DefaultHttpClient();////////////////
+////        CustomerCardService proxy = JAXRSClientFactory.create(BASE_SERVICE_URL, CustomerCardService.class,
+////              CLIENT_CONFIG_FILE);
+////        WebClient wc = WebClient.create(BASE_SERVICE_URL, CLIENT_CONFIG_FILE);
+////        
+////        // 123456 | YAHOOOOOOOOOOO	which exist
+////        CustomerCard customerCard = new CustomerCard();
+////        customerCard.setCardNumber("1111111111111111");//9898787111111111
+////        customerCard.setCustomerXAID(222222);//1111111
+////        Response resp = wc.post(customerCard);
+//        /*ends rem for now*/
+//        /*
+//        entity = response.getEntity();
+//        entity.writeTo(System.out);*/
+//        
+////        
+//
+//        httpclient.getConnectionManager().shutdown();
+//        
+//        System.out.println("\n");
+//        System.exit(0);
+//    }
+    
+    
+    public List<CustomerCard> create10Cards() {
+    	List<CustomerCard> cc = new ArrayList<CustomerCard>();
+    	
+    	CustomerCard customerCard = new CustomerCard();
+    	customerCard.setCardNumber("4536278934756");
+    	customerCard.setCustomerXAID(new BigInteger("1234534567"));
+    	
+    	cc.add(customerCard);
+    	
+    	customerCard = new CustomerCard();
+    	customerCard.setCardNumber("4536278934756");
+    	customerCard.setCustomerXAID(new BigInteger("122534567"));
+    	
+    	cc.add(customerCard);
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("657849302984756");
+    	customerCard.setCustomerXAID(new BigInteger("56843782765"));
+    	
+    	cc.add(customerCard);
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("02394857483");
+    	customerCard.setCustomerXAID(new BigInteger("45346545678"));
+    	
+    	cc.add(customerCard);
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("92387465437645");
+    	customerCard.setCustomerXAID(new BigInteger("5464563728"));
+    	
+    	cc.add(customerCard);
+		
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("6574382374654738");
+    	customerCard.setCustomerXAID(new BigInteger("56473827465"));
+    	
+    	cc.add(customerCard);
+		
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("564738276565437");
+    	customerCard.setCustomerXAID(new BigInteger("654378234"));
+    	
+    	cc.add(customerCard);
+		
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("980765986754");
+    	customerCard.setCustomerXAID(new BigInteger("564372456"));
+    	
+    	cc.add(customerCard);
+		
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("65473829093485");
+    	customerCard.setCustomerXAID(new BigInteger("432561345"));
+    	
+    	cc.add(customerCard);
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("32415627345");
+    	customerCard.setCustomerXAID(new BigInteger("9876674567"));
+    	
+    	cc.add(customerCard);
+		
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("293874567438293845");
+    	customerCard.setCustomerXAID(new BigInteger("92837393456"));
+    	
+    	cc.add(customerCard);
+		
+		
+		
+		customerCard = new CustomerCard();
+    	customerCard.setCardNumber("65437829837465");
+    	customerCard.setCustomerXAID(new BigInteger("54637775"));
+    	
+    	cc.add(customerCard);
+    	
+    	return cc;
+    }
+}

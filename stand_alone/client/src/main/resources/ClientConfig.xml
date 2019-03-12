@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans                 http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://cxf.apache.org/transports/http/configuration         http://cxf.apache.org/schemas/configuration/http-conf.xsd
+        http://cxf.apache.org/core       							http://cxf.apache.org/schemas/core.xsd ">
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
+
+    <!-- http://stackoverflow.com/questions/4592422/logging-request-response-with-apache-cxf-as-xml -->
+    <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+    <bean id="logOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+    <!--  http://stackoverflow.com/questions/12863182/how-do-i-get-cxf-to-log-exceptions-to-the-error-channel -->
+    <bean class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
+        <property name="printStackTrace" value="true"/>
+    </bean>
+
+
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <ref bean="loggingInInterceptor"/>
+            <!-- <ref bean="rsLoggingInInterceptor" /> -->
+        </cxf:inInterceptors>
+        <cxf:outInterceptors>
+            <ref bean="logOutInterceptor"/>
+            <!-- <ref bean="rsLoggingOutInterceptor" /> -->
+        </cxf:outInterceptors>
+    </cxf:bus>
+
+
+    <!-- -->
+    <!-- HTTP/S configuration for proxy & web clients -->
+    <!-- -->
+    <!--<http:conduit name="http://10.0.103.115:.*/services/.*">-->
+    <!--qa-->
+    <!--<http:conduit name="http:/10.0.104.90:.*/services/.*">-->
+    <http:conduit name="http:/localhost:.*/services/.*">
+        <!--<http:conduit name="http://10.0.103.112:.*/services/.*">-->
+        <!--prod <http:conduit name="http://10.0.103.205:.*/services/.*">-->
+        <http:client ConnectionTimeout="3000000" ReceiveTimeout="3000000"/>
+    </http:conduit>
+
+</beans>
+

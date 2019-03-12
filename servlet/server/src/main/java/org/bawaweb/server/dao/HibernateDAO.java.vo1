@@ -1,0 +1,138 @@
+package org.bawaweb.server.dao;
+
+import java.util.logging.Logger;
+
+import javax.persistence.EntityManager;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+import org.bawaweb.server.EntityManagerUtil;
+
+
+/**
+ * @author medhoran
+ * All DAOImpl classes must extend this
+ * provides crud functionality for jpa using entitymanager and hibernate using session
+ */
+public abstract class HibernateDAO {
+	
+	
+	@SuppressWarnings("unused")
+	private static final Logger log = Logger.getAnonymousLogger();
+	
+	////hibernate session style
+	@SuppressWarnings("unchecked")	
+	private static final ThreadLocal session = new ThreadLocal();
+	private static final SessionFactory sessionFactory = null;//new Configuration().configure(new File("./config/hibernate.cfg.xml")).buildSessionFactory();
+	
+	// jpa style
+	protected EntityManager entityManager = EntityManagerUtil.getEntityManager();
+	
+	protected HibernateDAO() {
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Session getSession() {
+		Session session = (Session) HibernateDAO.session.get();
+		if (session == null) {
+			session = sessionFactory.openSession();
+			HibernateDAO.session.set(session);
+		}
+		return session;
+	}
+
+	protected void begin() {
+		entityManager.getTransaction().begin();
+	}
+	
+	protected void beginAndFlush() {
+		entityManager.getTransaction().begin();
+		entityManager.flush();
+	}
+	
+	protected void beginAndClear() {
+		if (!entityManager.getTransaction().isActive()) {
+			entityManager.getTransaction().begin();
+			entityManager.clear();
+		}
+	}
+	
+	/*protected void beginAndClearRollbackOnly() {
+		if (!entityManager.getTransaction().isActive()) {
+			entityManager.getTransaction().begin();
+			entityManager.getTransaction().setRollbackOnly();
+			entityManager.clear();
+		}
+	}*/
+	
+	protected void flush() {
+		entityManager.flush();
+	}
+	
+	protected void commit() {
+		if ( isActive() ) {
+			entityManager.getTransaction().commit();
+		}
+	}
+	
+	protected void rollback() {
+		if ( isActive() ) {
+			entityManager.getTransaction().rollback();
+		}
+	}
+	
+	protected boolean isActive() {
+		return entityManager.getTransaction().isActive();
+	}
+
+
+	/*trying to extract the lowlevel stacktraceelements - l8r substitute with above commit
+	 * protected void commit() {
+		try {
+			entityManager.getTransaction().commit();
+		} catch (IllegalStateException ie) {//(com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException me) {
+			// 
+			ie.printStackTrace();
+		} catch (RollbackException re) {
+			System.out.println("Message is " + re.getMessage());
+			System.out.println("Throwable is " + re.getCause());
+			StackTraceElement[] ss = re.getStackTrace();
+			for(int i = 0; i < ss.length; i++) {
+				System.out.println( );
+				StackTraceElement ste = ss[i];
+				System.out.println("StackCLass " + ste.getClassName());
+				System.out.println("Method name is " + ste.getMethodName());
+				
+			}
+			re.printStackTrace();
+		}
+	}*/
+	
+	
+	
+/*   -- hibernate
+	@SuppressWarnings("unchecked")
+	protected void rollback() {
+		try {
+			getSession().getTransaction().rollback();
+		} catch (HibernateException e) {
+			System.out.println(e.getMessage());
+		}
+		try {
+			getSession().close();
+		} catch (HibernateException e) {
+			System.out.println(e.getMessage());
+		}
+		HibernateDAO.session.set(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void close() {
+		getSession().close();
+		HibernateDAO.session.set(null);
+	}
+	-- ends hibernate*/
+
+}

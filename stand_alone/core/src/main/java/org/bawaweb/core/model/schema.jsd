@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "CustomerCard",
+    "description": "A CustomerCard object.",
+    "type": "object",
+    "properties": {
+            "cardId": { "type": "string" },
+			"value": { "type": "string" },
+			"createdBy": { "type": "string" },
+			"dateCreated": { "type": "string" },
+			"modifiedBy": { "type": "string" },
+			"dateModified":{ "type": "string" }
+		}
+}
+
+
+
+examples:
+(response for get):
+
+{
+	"CustomerCard":
+	{	"cardId":"2dcf8eab-fe9a-4d84-9e9f-299f89141caf",
+		"value":5405-2222-2222-2226,
+		"createdBy":"TUUUMEEEEEE",
+		"dateCreated":"2013-12-01T06:09:02-08:00",
+		"modifiedBy":"TUUUMEEEEEE",
+		"dateModified":"2013-12-01T06:09:02-08:00"
+	}
+}
+
+------------------------------
+{
+    "CustomerCard":
+    {
+        "cardId":"3d2d08ec-f716-4976-b936-716a88a3f15a",
+        "value":36110361103612,
+        "createdBy":"YAHOOOO",
+        "dateCreated":"2013-12-13T13:24:23-08:00",
+        "modifiedBy":"OOOOOOOOOOOYEAH",
+        "dateModified":"2013-12-13T13:24:23-08:00"
+    }
+}
+
+-----------------------------
+
+
+input for add
+{
+    "CustomerCard":
+    {
+        "cardId":"null",
+        "value":"3411-341-1341-1347",
+        "createdBy":"JULIE",
+        "dateCreated":"null",
+        "modifiedBy":"JULIE",
+        "dateModified":"null"
+    }
+}

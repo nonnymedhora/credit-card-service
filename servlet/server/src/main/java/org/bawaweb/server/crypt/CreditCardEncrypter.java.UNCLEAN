@@ -1,0 +1,178 @@
+/**
+ * 
+ */
+package org.bawaweb.server.crypt;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.jasypt.encryption.pbe.StandardPBEBigIntegerEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+//import org.jasypt.util.numeric.BasicIntegerNumberEncryptor;
+
+/**
+ * @author medhoran
+ *
+ */
+public final class CreditCardEncrypter {
+	
+	private final static StandardPBEBigIntegerEncryptor numberEncryptor;// = new StandardPBEBigIntegerEncryptor();
+	private final static StandardPBEStringEncryptor stringEncryptor;
+	
+	private static final String PASSWORD_STR = "abcdefghijklmnopqrstuvxyz";
+	private static final String ALGORITHM_STR = "PBEWithMD5AndTripleDES";
+	
+	private CreditCardEncrypter(){}
+	
+	static {
+		numberEncryptor = new StandardPBEBigIntegerEncryptor();
+		
+		numberEncryptor.setPassword(PASSWORD_STR);
+		numberEncryptor.setAlgorithm(ALGORITHM_STR);
+		
+		stringEncryptor = new StandardPBEStringEncryptor();
+		stringEncryptor.setPassword(PASSWORD_STR);
+		stringEncryptor.setAlgorithm(ALGORITHM_STR);
+	}
+	
+	public static String encryptCardNumber(String cardNumber) {
+		System.out.println("Number to encrypt [card number] is " + cardNumber);
+		StandardPBEBigIntegerEncryptor numberEncryptor = new StandardPBEBigIntegerEncryptor();
+		numberEncryptor.setPassword("abcdefg");
+		numberEncryptor.setAlgorithm("PBEWithMD5AndTripleDES");
+		BigInteger encryptedNumber = numberEncryptor.encrypt(new BigInteger(cardNumber));
+		System.out.println("for number " + cardNumber + " encrypted number is " + encryptedNumber);
+
+		return encryptedNumber.toString();
+	}
+
+	
+	public static String encryptCardNumberStr(String cardNumber) {
+		System.out.println("in encryptCardNumber cardNumber is " + cardNumber);
+		String encryptedString = stringEncryptor.encrypt(cardNumber);
+		System.out.println("for number " + cardNumber + " encrypted number is " + encryptedString);
+		return encryptedString;
+//		
+//		
+//		
+////		BasicIntegerNumberEncryptor numberEncryptor = new BasicIntegerNumberEncryptor();
+///*		StandardPBEBigIntegerEncryptor numberEncryptor = new StandardPBEBigIntegerEncryptor();
+//		numberEncryptor.setPassword("abcdefg");
+//		numberEncryptor.setAlgorithm("PBEWithMD5AndTripleDES");
+//*/
+//		BigInteger encryptedNumber = numberEncryptor.encrypt(new BigInteger(cardNumber));
+//		System.out.println("for number " + cardNumber + " encrypted number is " + encryptedNumber);
+//
+//		return encryptedNumber.toString();
+	}
+	
+	
+	public static String decryptCardNumber(String encryptedCardNumber) {
+		System.out.println("Number to decrypt[encryptedCardNumber] is  " + encryptedCardNumber);
+		StandardPBEBigIntegerEncryptor numberEncryptor = new StandardPBEBigIntegerEncryptor();		
+		numberEncryptor.setPassword("abcdefg");
+		numberEncryptor.setAlgorithm("PBEWithMD5AndTripleDES");
+		BigInteger decryptedNumber = numberEncryptor.decrypt(new BigInteger(encryptedCardNumber));
+			
+		System.out.println("for encryptednumber " + encryptedCardNumber + " decrypted number is " + decryptedNumber);
+		return decryptedNumber.toString();
+	}
+	
+	
+	public static String decryptCardNumberStr(String encryptedCardNumber) {
+		System.out.println("in decryptCardNumber encryptedCardNumber is " + encryptedCardNumber);
+		String decryptedString = stringEncryptor.decrypt(encryptedCardNumber);
+		System.out.println("for encryptednumber " + encryptedCardNumber + " decrypted number is " + decryptedString);
+		return decryptedString;
+//		
+//		
+//		
+////		BasicIntegerNumberEncryptor numberEncryptor = new BasicIntegerNumberEncryptor();
+///*		StandardPBEBigIntegerEncryptor numberEncryptor = new StandardPBEBigIntegerEncryptor();		
+//		numberEncryptor.setPassword("abcdefg");
+//		numberEncryptor.setAlgorithm("PBEWithMD5AndTripleDES");*/
+//		BigInteger decryptedNumber = numberEncryptor.decrypt(new BigInteger(encryptedCardNumber));
+//			
+//		System.out.println("for encryptednumber " + encryptedCardNumber + " decrypted number is " + decryptedNumber);
+//		return decryptedNumber.toString();
+	}
+	
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		CreditCardEncrypter cce = new CreditCardEncrypter();
+		final String psswd = "abcdefghijklmnopqrstuvxyz";
+		
+		String number = "1111111111111111";
+		System.out.println("Testing number " + number);
+		
+		String encStr = cce.encryptCardNumber(number);
+		System.out.println("Encrypted number is " + encStr);
+		
+		String decStr = cce.decryptCardNumber(encStr);
+		System.out.println("Decrypted number is " + decStr);
+		
+		
+		ArrayList<String> numbers = new ArrayList<String>();
+		numbers.add("123456734545");
+		numbers.add("12334673453445");
+		numbers.add("12234567345456");
+		numbers.add("1230987734456");
+		numbers.add("1234765543456");
+		numbers.add("12342342344565");
+		numbers.add("1239875434356");
+		numbers.add("12654373423455");
+		numbers.add("12345677472345");
+		numbers.add("12345677632455");
+		
+		HashMap<String, String> numMap = new HashMap<String, String>();
+		
+		for (int i = 0; i < numbers.size(); i++) {
+			String s = numbers.get(i);
+			
+			String enc = CreditCardEncrypter.encryptCardNumber(s);
+			
+			numMap.put(enc, s);
+			
+			BigInteger b = new BigInteger(enc);
+		}
+		
+		Set<String> encKeys = numMap.keySet();
+		
+		Iterator<String> it = encKeys.iterator();
+		while ( it.hasNext() ) {
+			String s = it.next();
+			
+			String dec = CreditCardEncrypter.decryptCardNumber(s);
+			
+			if ( !dec.equals(numMap.get(s))) {
+				System.out.println("number entered was " + numMap.get(s) + " encrypted value was " + s + " and decrypted value was " + dec);
+			}
+			
+			BigInteger b = new BigInteger(dec);
+		}
+		
+		System.out.println("All clear");
+		
+		
+		
+		
+		
+//		
+
+		/*BigInteger encryptedNumber = new BigInteger(cce.enc(number));
+		System.out.println("Encrypted number is " + encryptedNumber);
+		
+		
+		BigInteger decryptedNumber = new BigInteger(cce.dec(encryptedNumber.toString()));
+		System.out.println("Decrypted number is " + decryptedNumber);*/
+		
+
+	}
+
+}

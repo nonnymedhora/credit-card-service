@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+
+<!-- ** This file configures the Server which exposes the REST endpoint. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:sec="http://cxf.apache.org/configuration/security"
+	xmlns:http="http://cxf.apache.org/transports/http/configuration"
+	xmlns:httpj="http://cxf.apache.org/transports/http-jetty/configuration"
+	xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="
+       http://cxf.apache.org/configuration/security  		      
+       http://cxf.apache.org/schemas/configuration/security.xsd
+       http://cxf.apache.org/transports/http/configuration
+       http://cxf.apache.org/schemas/configuration/http-conf.xsd
+       http://cxf.apache.org/transports/http-jetty/configuration
+       http://cxf.apache.org/schemas/configuration/http-jetty.xsd
+       http://cxf.apache.org/core
+       http://cxf.apache.org/schemas/core.xsd
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://cxf.apache.org/jaxrs
+       http://cxf.apache.org/schemas/jaxrs.xsd">
+       
+    <!-- <import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-jaxrsbinding.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" /> -->
+
+	<httpj:engine-factory bus="cxf">
+		<httpj:engine port="9000">
+			<httpj:tlsServerParameters>
+				<sec:keyManagers keyPassword="skpass">
+					<sec:keyStore file="config/serviceKeystore.jks"
+						password="sspass" type="JKS" />
+				</sec:keyManagers>
+				<sec:trustManagers>
+					<sec:keyStore file="config/serviceKeystore.jks"
+						password="sspass" type="JKS" />
+				</sec:trustManagers>
+				<sec:cipherSuitesFilter>
+					<!-- these filters ensure that a ciphersuite with export-suitable or 
+						null encryption is used, but exclude anonymous Diffie-Hellman key change 
+						as this is vulnerable to man-in-the-middle attacks -->
+					<sec:include>.*_EXPORT_.*</sec:include>
+					<sec:include>.*_EXPORT1024_.*</sec:include>
+					<sec:include>.*_WITH_DES_.*</sec:include>
+					<sec:include>.*_WITH_AES_.*</sec:include>
+					<sec:include>.*_WITH_NULL_.*</sec:include>
+					<sec:exclude>.*_DH_anon_.*</sec:exclude>
+				</sec:cipherSuitesFilter>
+				<sec:clientAuthentication want="true"
+					required="true" />
+			</httpj:tlsServerParameters>
+		</httpj:engine>
+	</httpj:engine-factory>
+
+	<!-- http://stackoverflow.com/questions/4592422/logging-request-response-with-apache-cxf-as-xml -->
+	<bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
+	<!-- <bean id="loggingInInterceptor" class="org.apache.cxf.jaxrs.interceptor.JAXRSInInterceptor"/> -->
+	<bean id="logOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
+	<bean id="rsLoggingInInterceptor" class="org.bawaweb.server.logging.RestCardServiceLoggingInInterceptor" />
+	<!-- <bean id="myRSLoggingInInterceptor" class="org.bawaweb.server.logging.RCardServiceLoggingInInterceptor" /> -->
+	<bean id="rsLoggingOutInterceptor" class="org.bawaweb.server.logging.RestCardServiceLoggingOutInterceptor" />
+
+	<!--  http://stackoverflow.com/questions/12863182/how-do-i-get-cxf-to-log-exceptions-to-the-error-channel -->
+	<bean class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
+		<property name="printStackTrace" value="true" />
+	</bean>
+
+
+	<cxf:bus>
+		<cxf:inInterceptors>
+			<ref bean="loggingInInterceptor" />
+			<ref bean="rsLoggingInInterceptor" />
+			<!-- <ref bean="myRSLoggingInInterceptor" /> -->
+		</cxf:inInterceptors>
+		<cxf:outInterceptors>
+			<ref bean="logOutInterceptor" />
+			<ref bean="rsLoggingOutInterceptor" />
+		</cxf:outInterceptors>
+	</cxf:bus>
+
+</beans>

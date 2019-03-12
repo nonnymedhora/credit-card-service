@@ -1,0 +1,42 @@
+
+
+// Base plugin for task rule clean<task>
+apply plugin: 'base'
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse'
+apply plugin: 'jetty'
+
+repositories {
+   mavenCentral()                                               //A
+}
+
+
+//repositories.mavenCentral()
+
+// New configuration for CXF dependencies.
+configurations { cxf }
+
+ext {
+    // CXF version.
+    cxfVersion = '2.6.2'
+
+    // Artifacts for CXF dependency.
+    cxfArtifacts = [
+        'cxf-tools-wsdlto-frontend-jaxws', 
+        'cxf-tools-wsdlto-databinding-jaxb', 
+        'cxf-tools-common', 
+        'cxf-tools-wsdlto-core'
+    ]
+}
+
+dependencies {
+	compile group: 'org.hibernate', name: 'hibernate-core', version: '4.2.7.Final'
+   providedCompile 'javax.servlet:servlet-api:2.5'
+   runtime 'javax.servlet:jstl:1.1.2:org.jasypt:jasypt-hibernate3:1.9.0'
+    // Assign CXF dependencies to configuration.
+    cxfArtifacts.each { artifact ->
+        cxf "org.apache.cxf:$artifact:$cxfVersion"
+    }
+}
